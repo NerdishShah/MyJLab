@@ -1,0 +1,99 @@
+package com.playground.java;
+
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class SolutionJava8 {
+    public static void main(String[] args) {
+//            int[] capacities = new int[3];
+//            capacities[0] = 6;
+//            capacities[1] = 9;
+//            capacities[2] = 20;
+//            int targetVolume = 44;
+//            dumpDeliveryOptions(capacities, targetVolume);
+
+        try (Stream<String> stream = Files.lines(Paths.get("src/test/resources/input.txt"))) {
+            stream.forEach(ln -> {
+                List<Integer> values = Arrays.stream((ln.split(", ")[0].replaceAll("[()]","").split(","))).map(Integer::parseInt).collect(Collectors.toList());
+                int targetVolume = Integer.parseInt(ln.split(", ")[1]);
+                dumpDeliveryOptions(values.stream()
+                        .mapToInt(Integer::intValue)
+                        .toArray(), targetVolume);
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        }
+
+        static void dumpDeliveryOptions(int[] capacities, int targetVolume) {
+            int tankerCount = capacities.length;
+            int[] tankers = new int[tankerCount];
+            StringBuilder outputBuffer = new StringBuilder();
+
+            final BinaryOperator<Integer> dumps[] = new BinaryOperator[1];
+            dumps[0] = (index, volume) -> {
+
+                // Last option, evenly divisible.
+                if (index == (tankerCount - 1)) {
+                    if ((volume % capacities[index]) == 0) {
+                        tankers[index] = (volume / capacities[index]);
+                        dumps[0].apply((index + 1), 0);
+                    }
+                }
+
+                // Done.
+                else if (index == tankerCount) {
+
+                    outputBuffer.append("[" + tankers[0]);
+
+                    for (int i = 1; i < tankerCount; ++i) {
+
+                        outputBuffer.append("," + tankers[i]);
+                    }
+
+                    outputBuffer.append("]");
+                }
+
+                // Try next arrangements.
+                else
+                    for (int i = 0; i <= (volume / capacities[index]); ++i) {
+                        tankers[index] = i;
+                        dumps[0].apply((index + 1), (volume - (i * capacities[index])));
+                    }
+
+                return 0;
+
+            };
+
+            Predicate<Integer> canDeliver = (volume) -> {
+                dumps[0].apply(0, volume);
+                // Dumped some results to the output stream buffer.
+                return (outputBuffer.length() > 0);
+            };
+
+// Options exist as is.
+            if (canDeliver.test(targetVolume)) {
+                System.out.println(outputBuffer);
+            }
+
+// Inflate target oil volume until delivery options become possible.
+            else
+                for (int volume = targetVolume;;)
+                    if (canDeliver.test(++volume)) {
+                        System.out.println(volume - targetVolume);
+                        break;
+                    }
+        }
+
+    }
+
