@@ -5,13 +5,13 @@ import static org.junit.Assert.assertTrue;
 public class Solution {
 
     public static void main(String[] args) {
-        int[] values = new int[8];
-        values[0] = 6;
-        values[1] = 9;
-        values[2] = 20;
-        values[3] = 44;
-        int valueCount = 0;
-        int targetVolume = values[values.length - 1];
+        int[] values = new int[4];
+        values[0] = 2;
+        values[1] = 4;
+        values[2] = 8;
+        values[3] = 8;
+        int valueCount = 3;
+        int targetVolume = values[3];
         dumpDeliveryOptions(values, valueCount, targetVolume);
     }
 
@@ -29,8 +29,11 @@ public class Solution {
         if (targetVolume <= 0 || index == 0) {
             return false;
         }
-
-        return canDeliver(targetVolume, index - 1, capacities) || canDeliver(targetVolume - capacities[(int) index - 1], index, capacities);
+        
+        boolean lhs = canDeliver(targetVolume, index - 1, capacities);
+        boolean rhs = canDeliver(targetVolume - capacities[(int) index - 1], index, capacities);
+        
+        return (lhs || rhs);
 
 //        boolean lhs = self(targetVolume, index - 1, capacities), rhs = self2(targetVolume - capacities[(int) (index - 1)], index, capacities);
 //        return lhs || rhs;
@@ -50,13 +53,13 @@ public class Solution {
 
         // Done.
         else if (index == capacityCount) {
-            System.out.println("[" + tankers[0]);
+            System.out.print("[" + tankers[0]);
 
             for (int i = 1; i < capacityCount; ++i) {
-                System.out.println("," + tankers[i]);
+                System.out.print("," + tankers[i]);
             }
 
-            System.out.println("]");
+            System.out.print("]");
         }
 
         // Try next arrangements.
@@ -88,7 +91,8 @@ public class Solution {
 
 
         // Options exist as is.
-        if (canDeliver(targetVolume, capacityCount, capacities)) {
+        //if (canDeliver(targetVolume, capacityCount, capacities)) {
+        	if (true) {
             doDumpDeliveryOptions(0, targetVolume, capacities,
                     capacityCount, tankers);
 
