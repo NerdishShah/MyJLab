@@ -1,42 +1,47 @@
-import org.junit.Assert;
+package com.playground.java;
 
-import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Solution {
 
+
     public static void main(String[] args) {
-        int[] values = new int[4];
-        values[0] = 2;
-        values[1] = 4;
-        values[2] = 8;
-        values[3] = 8;
-        int valueCount = 3;
-        int targetVolume = values[3];
-        dumpDeliveryOptions(values, valueCount, targetVolume);
+
+        try (Stream<String> stream = Files.lines(Paths.get("src/test/resources/input.txt"))) {
+            stream.forEach(ln -> {
+              List<Integer> values = Arrays.stream((ln.split(", ")[0].replaceAll("[()]","").split(","))).map(Integer::parseInt).collect(Collectors.toList());
+                int targetVolume = Integer.parseInt(ln.split(", ")[1]);
+                dumpDeliveryOptions(values.stream()
+                        .mapToInt(Integer::intValue)
+                        .toArray(), values.size(), targetVolume);
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
-//    public static boolean self(int value, long index_U, int[] capacities_U) {
-//        return canDeliver(value, index_U, capacities_U);
-//    }
-//
-//    public static boolean self2(int value_U, long index_U, int[] capacities_U) {
-//        return canDeliver(value_U, index_U, capacities_U);
-//    }
-
     private static boolean canDeliver(int targetVolume, long index, int[] capacities) {
-        assert capacities != null;
+        assertTrue(capacities.length > 0);
 
-        if (targetVolume <= 0 || index == 0) {
-            return false;
+        if (targetVolume <= 0 || index <= 0) {
+            return targetVolume != 0;
         }
-        
+
         boolean lhs = canDeliver(targetVolume, index - 1, capacities);
         boolean rhs = canDeliver(targetVolume - capacities[(int) index - 1], index, capacities);
-        
-        return (lhs || rhs);
 
-//        boolean lhs = self(targetVolume, index - 1, capacities), rhs = self2(targetVolume - capacities[(int) (index - 1)], index, capacities);
-//        return lhs || rhs;
+        return (lhs || rhs);
     }
 
     private static void doDumpDeliveryOptions(final int index, final int targetVolume, int[] capacities, final int capacityCount, int[] tankers) {
@@ -75,28 +80,18 @@ public class Solution {
     private static void dumpDeliveryOptions(int[] capacities, int capacityCount, int targetVolume) {
 
         // Tanker count.
-        assert (capacities.length > 0 && (capacityCount >= 2) && (capacityCount <= 5));
+        assertTrue(capacities.length > 0 && (capacityCount >= 2) && (capacityCount <= 5));
 
         // Target oil volume.
-        assert ((targetVolume >= 1) && (targetVolume <= 2e5));
+        assertTrue((targetVolume >= 1) && (targetVolume <= 2e5));
 
-//            assert(outputStream && !ferror(outputStream));
-
-        // VLAs yield a slightly better memory score on CodeEval than straight
-        // [m,c]alloc. Shouldn't rely on this in C11 and onwards, though.
         int[] tankers = new int[capacityCount];
 
-
-//            memset(tankers, 0, sizeof tankers);
-
-
         // Options exist as is.
-        //if (canDeliver(targetVolume, capacityCount, capacities)) {
-        	if (true) {
+        if (canDeliver(targetVolume, capacityCount, capacities)) {
             doDumpDeliveryOptions(0, targetVolume, capacities,
                     capacityCount, tankers);
-
-//                System.out.println('\n', outputStream);
+                System.out.println();
         }
 
         // Inflate target oil volume until delivery options become possible.
