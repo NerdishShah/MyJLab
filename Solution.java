@@ -34,7 +34,7 @@ public class Solution {
         assertTrue(index <= capacityCount);
         if(index == (capacityCount - 1))
         {
-            if(!(targetVolume % capacities[index]))
+            if(targetVolume % capacities[index]==0)
             {
                 tankers[index] = (targetVolume / capacities[index]);
 
